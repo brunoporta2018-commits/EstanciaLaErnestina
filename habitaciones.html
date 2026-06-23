@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alojamiento — La Ernestina</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Josefin+Sans:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --verde-oscuro: #1a2e1e;
+    --verde-medio: #2d4a2f;
+    --verde-claro: #4a7c4e;
+    --crema: #f5f0e8;
+    --arena: #d9ceb8;
+    --dorado: #b8984a;
+    --marron: #5c3d2e;
+    --texto: #1a1a18;
+    --pad-x: clamp(1.25rem, 5vw, 6rem);
+    --pad-y: clamp(3rem, 8vw, 7rem);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  a:focus-visible,
+  button:focus-visible {
+    outline: 2px solid var(--dorado);
+    outline-offset: 3px;
+  }
+  .nav-hamburger:focus-visible {
+    outline: 2px solid var(--dorado);
+    outline-offset: 4px;
+  }
+
+  body {
+    font-family: 'Cormorant Garamond', serif;
+    background: var(--crema);
+    color: var(--texto);
+    overflow-x: hidden;
+  }
+
+  img { display: block; max-width: 100%; }
+
+  /* ── NAV (idéntico al index) ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 200;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem var(--pad-x);
+    background: rgba(26,46,30,0.96);
+    backdrop-filter: blur(10px);
+    transition: background 0.5s;
+  }
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(0.85rem, 2vw, 1.1rem);
+    font-weight: 300;
+    letter-spacing: 0.3em;
+    color: var(--crema);
+    text-decoration: none;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+  .nav-links {
+    display: flex;
+    gap: clamp(1.2rem, 3vw, 3rem);
+    list-style: none;
+  }
+  .nav-links a {
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: clamp(0.6rem, 1.2vw, 0.7rem);
+    font-weight: 200;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--crema);
+    text-decoration: none;
+    opacity: 0.85;
+    transition: opacity 0.3s;
+    white-space: nowrap;
+  }
+  .nav-links a:hover, .nav-links a.active { opacity: 1; color: var(--dorado); }
+
+  .nav-hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    padding: 4px;
+    background: none;
+    border: none;
+    z-index: 210;
+  }
+  .nav-hamburger span {
+    display: block;
+    width: 24px;
+    height: 1.5px;
+    background: var(--crema);
+    transition: transform 0.35s, opacity 0.35s;
+    transform-origin: center;
+  }
+  .nav-hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+  .nav-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  .nav-hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+  .nav-mobile-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(13,26,15,0.97);
+    z-index: 190;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2.5rem;
+    opacity: 0;
+    transition: opacity 0.35s;
+  }
+  .nav-mobile-overlay.open { display: flex; opacity: 1; }
+  .nav-mobile-overlay a {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 300;
+    color: var(--crema);
+    text-decoration: none;
+    letter-spacing: 0.15em;
+    opacity: 0.85;
+    transition: opacity 0.2s;
+  }
+  .nav-mobile-overlay a:hover { opacity: 1; color: var(--dorado); }
+
+  /* ── PAGE HERO ── */
+  .page-hero {
+    position: relative;
+    height: clamp(55vh, 60vh, 70vh);
+    min-height: 380px;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+    background: var(--verde-oscuro);
+  }
+  .page-hero-bg {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(to bottom, rgba(10,20,10,0.35) 0%, rgba(10,20,10,0.15) 40%, rgba(10,20,10,0.7) 100%),
+      url('https://images.unsplash.com/photo-1601918774946-25832a4be0d6?w=1600&q=80') center/cover no-repeat;
+    transform: scale(1.05);
+    animation: heroZoom 20s ease-in-out infinite alternate;
+  }
+  @keyframes heroZoom { from { transform: scale(1.05); } to { transform: scale(1.0); } }
+  .page-hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 0 var(--pad-x) clamp(3rem, 8vw, 5rem);
+    max-width: 820px;
+    animation: fadeUp 1.2s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .hero-sup {
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: clamp(0.55rem, 1.5vw, 0.65rem);
+    font-weight: 200;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--dorado);
+    margin-bottom: 1rem;
+    display: block;
+  }
+  .page-hero h1 {
+    font-size: clamp(2.6rem, 7vw, 5rem);
+    font-weight: 300;
+    line-height: 0.98;
+    color: var(--crema);
+  }
+  .page-hero h1 em { font-style: italic; color: var(--arena); }
+
+  /* ── INTRO TEXT ── */
+  .rooms-intro {
+    padding: clamp(3rem, 6vw, 5rem) var(--pad-x) clamp(1.5rem, 4vw, 2.5rem);
+    text-align: center;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  .section-tag {
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: clamp(0.55rem, 1.2vw, 0.6rem);
+    font-weight: 200;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--dorado);
+    margin-bottom: 1.25rem;
+    display: block;
+  }
+  .rooms-intro h2 {
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 300;
+    line-height: 1.15;
+    margin-bottom: 1.25rem;
+  }
+  .rooms-intro h2 em { font-style: italic; color: var(--verde-claro); }
+  .rooms-intro p {
+    font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+    font-weight: 300;
+    line-height: 1.8;
+    color: #4a4a44;
+  }
+
+  /* ── ROOM DETAIL BLOCKS ── */
+  .room-detail {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 80vh;
+    scroll-margin-top: 90px;
+  }
+  .room-detail:nth-child(even) .room-detail-img { order: 2; }
+  .room-detail-img {
+    position: relative;
+    overflow: hidden;
+  }
+  .room-detail-img img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 8s ease;
+  }
+  .room-detail-img:hover img { transform: scale(1.04); }
+  .room-detail-badge {
+    position: absolute;
+    top: 2rem; left: 0;
+    background: var(--dorado);
+    color: var(--crema);
+    padding: 0.9rem 1.6rem;
+    font-size: clamp(0.55rem, 1.2vw, 0.65rem);
+    letter-spacing: 0.2em;
+    font-family: 'Josefin Sans', sans-serif;
+    font-weight: 200;
+    text-transform: uppercase;
+  }
+  .room-detail-text {
+    background: var(--verde-oscuro);
+    padding: clamp(3rem, 6vw, 6rem) clamp(2rem, 5vw, 5rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: var(--crema);
+  }
+  .room-detail:nth-child(odd) .room-detail-text { background: var(--marron); }
+  .room-detail-num {
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.4em;
+    color: var(--dorado);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .room-detail-text h2 {
+    font-size: clamp(1.9rem, 4vw, 2.8rem);
+    font-weight: 300;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+  }
+  .room-detail-text h2 em { font-style: italic; color: var(--arena); }
+  .room-detail-price {
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: clamp(0.75rem, 1.6vw, 0.9rem);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--dorado);
+    margin-bottom: 1.5rem;
+    display: block;
+  }
+  .divider-gold { width: 50px; height: 1px; background: var(--dorado); margin-bottom: 1.5rem; }
+  .room-detail-text p {
+    font-size: clamp(0.95rem, 1.8vw, 1.05rem);
+    font-weight: 300;
+    line-height: 1.85;
+    color: rgba(245,240,232,0.78);
+    margin-bottom: 1.5rem;
+  }
+  .room-detail-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-bottom: 2rem;
+  }
+  .feat-tag {
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: clamp(0.55rem, 1.1vw, 0.6rem);
+    font-weight: 200;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    background: rgba(245,240,232,0.12);
+    border: 1px solid rgba(245,240,232,0.25);
+    color: rgba(245,240,232,0.85);
+    padding: 0.4rem 0.9rem;
+  }
+  .btn-primary {
+    display: inline-block;
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: clamp(0.6rem, 1.5vw, 0.65rem);
+    font-weight: 300;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--verde-oscuro);
+    background: var(--crema);
+    padding: 0.9rem 2rem;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s;
+    white-space: nowrap;
+    align-self: flex-start;
+  }
+  .btn-primary:hover { background: var(--dorado); color: var(--crema); }
+
+  /* ── CTA (igual al index) ── */
+  .cta {
+    position: relative;
+    min-height: clamp(380px, 60vh, 600px);
+    display: flex; align-items: center; justify-content: center;
+    text-align: center; overflow: hidden;
+    background: var(--verde-oscuro);
+    padding: 4rem var(--pad-x);
+  }
+  .cta-bg {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(rgba(10,25,12,0.65), rgba(10,25,12,0.65)),
+      url('https://images.unsplash.com/photo-1518098268026-4e89f1a2cd8e?w=1600&q=80') center/cover no-repeat;
+  }
+  .cta-content { position: relative; z-index: 2; width: 100%; max-width: 640px; }
+  .cta-content h2 {
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 300; color: var(--crema); line-height: 1.1; margin-bottom: 1.25rem;
+  }
+  .cta-content h2 em { font-style: italic; color: var(--arena); }
+  .cta-content p {
+    font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+    font-weight: 300; color: rgba(245,240,232,0.7);
+    margin-bottom: 2rem; line-height: 1.7;
+  }
+  .cta-btns { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; }
+  .btn-outline {
+    display: inline-block;
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: clamp(0.6rem, 1.5vw, 0.65rem);
+    font-weight: 300;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--crema);
+    background: transparent;
+    border: 1px solid rgba(245,240,232,0.5);
+    padding: 0.9rem 2rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: border-color 0.3s, background 0.3s;
+    white-space: nowrap;
+  }
+  .btn-outline:hover { background: rgba(245,240,232,0.1); border-color: var(--crema); }
+
+  /* ── FOOTER (igual al index) ── */
+  footer {
+    background: #0d1a0f;
+    padding: clamp(2.5rem, 5vw, 4rem) var(--pad-x);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: clamp(2rem, 4vw, 3rem);
+    align-items: start;
+  }
+  .footer-brand .logo-text {
+    font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+    font-weight: 300; letter-spacing: 0.25em;
+    color: var(--crema); text-transform: uppercase; display: block; margin-bottom: 1rem;
+  }
+  footer p, footer address {
+    font-size: clamp(0.85rem, 1.6vw, 0.95rem);
+    font-weight: 300; color: rgba(245,240,232,0.45); line-height: 1.8; font-style: normal;
+  }
+  .footer-col h4 {
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 0.6rem; font-weight: 200; letter-spacing: 0.4em;
+    text-transform: uppercase; color: var(--dorado); margin-bottom: 1.2rem;
+  }
+  .footer-links { list-style: none; }
+  .footer-links li { margin-bottom: 0.5rem; }
+  .footer-links a {
+    font-size: clamp(0.85rem, 1.6vw, 0.95rem);
+    font-weight: 300; color: rgba(245,240,232,0.45);
+    text-decoration: none; transition: color 0.3s;
+  }
+  .footer-links a:hover { color: var(--crema); }
+  .footer-bottom {
+    background: #0d1a0f;
+    border-top: 1px solid rgba(245,240,232,0.08);
+    text-align: center; padding: 1.5rem var(--pad-x);
+  }
+  .footer-bottom p {
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 0.55rem; font-weight: 200; letter-spacing: 0.3em;
+    color: rgba(245,240,232,0.25); text-transform: uppercase;
+  }
+
+  /* Scroll reveal */
+  .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.85s ease, transform 0.85s ease; }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  /* ════════════════════════════════════
+     RESPONSIVE
+  ════════════════════════════════════ */
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    .nav-hamburger { display: flex; }
+
+    .room-detail { grid-template-columns: 1fr; min-height: auto; }
+    .room-detail-img { height: clamp(260px, 60vw, 440px); order: -1 !important; }
+    .room-detail-text { padding: clamp(2.5rem, 6vw, 4rem) clamp(1.5rem, 5vw, 3rem); }
+
+    footer { grid-template-columns: 1fr 1fr; }
+    .footer-brand { grid-column: 1 / -1; }
+  }
+
+  @media (max-width: 480px) {
+    .page-hero h1 { font-size: 2.3rem; }
+    .cta-btns { flex-direction: column; align-items: center; }
+    .cta-btns .btn-primary, .cta-btns .btn-outline { width: 100%; max-width: 280px; text-align: center; }
+    footer { grid-template-columns: 1fr; }
+    .room-detail-badge { padding: 0.7rem 1.1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <a href="index.html" class="nav-logo">La Ernestina</a>
+  <ul class="nav-links">
+    <li><a href="index.html#nosotros">Nosotros</a></li>
+    <li><a href="index.html#experiencias">Experiencias</a></li>
+    <li><a href="habitaciones.html" class="active">Alojamiento</a></li>
+    <li><a href="index.html#gastronomia">Gastronomía</a></li>
+    <li><a href="index.html#contacto">Reservas</a></li>
+  </ul>
+  <button class="nav-hamburger" id="hamburger" aria-label="Abrir menú">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE OVERLAY MENU -->
+<div class="nav-mobile-overlay" id="mobile-menu">
+  <a href="index.html#nosotros" class="menu-link">Nosotros</a>
+  <a href="index.html#experiencias" class="menu-link">Experiencias</a>
+  <a href="habitaciones.html" class="menu-link">Alojamiento</a>
+  <a href="index.html#gastronomia" class="menu-link">Gastronomía</a>
+  <a href="index.html#contacto" class="menu-link">Reservas</a>
+</div>
+
+<!-- PAGE HERO -->
+<section class="page-hero">
+  <div class="page-hero-bg"></div>
+  <div class="page-hero-content">
+    <span class="hero-sup">La Ernestina · Alojamiento</span>
+    <h1>Nuestras<br><em>Habitaciones</em></h1>
+  </div>
+</section>
+
+<!-- INTRO -->
+<div class="rooms-intro reveal">
+  <span class="section-tag">Refugios de montaña</span>
+  <h2>Cuatro formas de<br><em>habitar la cordillera</em></h2>
+  <p>Desde cabañas íntimas entre lengas hasta suites con vistas de 360°, cada alojamiento de La Ernestina fue pensado como un refugio propio: distinto en su carácter, fiel en su calidez.</p>
+</div>
+
+<!-- ROOM 1 -->
+<section id="cabana-bosque" class="room-detail">
+  <div class="room-detail-img">
+    <img src="img/hospedaje/cabaña3.jpg" alt="Cabaña del Bosque" loading="lazy">
+    <div class="room-detail-badge">Más elegida</div>
+  </div>
+  <div class="room-detail-text reveal">
+    <span class="room-detail-num">Para parejas</span>
+    <h2>Cabaña del<br><em>Bosque</em></h2>
+    <span class="room-detail-price">Desde $85.000 / noche</span>
+    <div class="divider-gold"></div>
+    <p>Escondida entre lengas centenarias, esta cabaña de troncos combina el calor de la chimenea a leña con grandes ventanales que enmarcan el bosque. Ideal para parejas que buscan intimidad y silencio absoluto.</p>
+    <div class="room-detail-features">
+      <span class="feat-tag">2 personas</span>
+      <span class="feat-tag">Chimenea a leña</span>
+      <span class="feat-tag">Vista al valle</span>
+      <span class="feat-tag">Deck privado</span>
+      <span class="feat-tag">Desayuno incluido</span>
+    </div>
+    <a href="index.html#contacto" class="btn-primary">Consultar disponibilidad</a>
+  </div>
+</section>
+
+<!-- ROOM 2 -->
+<section id="suite-cumbre" class="room-detail">
+  <div class="room-detail-img">
+    <img src="img/hospedaje/cabaña2.jpg" alt="Suite La Cumbre" loading="lazy">
+    <div class="room-detail-badge">Premium</div>
+  </div>
+  <div class="room-detail-text reveal">
+    <span class="room-detail-num">Vista panorámica</span>
+    <h2>Suite La<br><em>Cumbre</em></h2>
+    <span class="room-detail-price">Desde $145.000 / noche</span>
+    <div class="divider-gold"></div>
+    <p>Nuestra suite insignia, ubicada en el punto más alto de la estancia. Jacuzzi exterior con vista panorámica de 360° a la cordillera, living separado y terraza privada para contemplar el amanecer sobre los picos nevados.</p>
+    <div class="room-detail-features">
+      <span class="feat-tag">4 personas</span>
+      <span class="feat-tag">Jacuzzi exterior</span>
+      <span class="feat-tag">Panorámica 360°</span>
+      <span class="feat-tag">Living separado</span>
+      <span class="feat-tag">Servicio de mayordomo</span>
+    </div>
+    <a href="index.html#contacto" class="btn-primary">Consultar disponibilidad</a>
+  </div>
+</section>
+
+<!-- ROOM 3 -->
+<section id="refugio-familiar" class="room-detail">
+  <div class="room-detail-img">
+    <img src="img/eventos/evento1.jpg" alt="Refugio Familiar" loading="lazy">
+    <div class="room-detail-badge">Para grupos</div>
+  </div>
+  <div class="room-detail-text reveal">
+    <span class="room-detail-num">Cocina propia</span>
+    <h2>Eventos<br><em>Privados</em></h2>
+    <span class="room-detail-price">Desde $120.000 / noche</span>
+    <div class="divider-gold"></div>
+    <p>Cumpleaños, aniversarios, agasajos...Vení a celebrar los momentos que importan. Estés hospedado o no, te abrimos las puertas para que disfrutes de un almuerzo único en medio del bosque, en las Sierras de Córdoba.</p>
+    <div class="room-detail-features">
+      <span class="feat-tag">6 personas</span>
+      <span class="feat-tag">3 dormitorios</span>
+      <span class="feat-tag">Cocina equipada</span>
+      <span class="feat-tag">Galería con fogón</span>
+      <span class="feat-tag">Estacionamiento privado</span>
+    </div>
+    <a href="index.html#contacto" class="btn-primary">Consultar disponibilidad</a>
+  </div>
+</section>
+
+<!-- ROOM 4 
+<section id="casco-historico" class="room-detail">
+  <div class="room-detail-img">
+    <img src="https://images.unsplash.com/photo-1561409106-f2a1a5a19e1d?w=1000&q=80" alt="Casco Histórico" loading="lazy">
+    <div class="room-detail-badge">Desde 1952</div>
+  </div>
+  <div class="room-detail-text reveal">
+    <span class="room-detail-num">Estilo colonial</span>
+    <h2>Casco<br><em>Histórico</em></h2>
+    <span class="room-detail-price">Desde $68.000 / noche</span>
+    <div class="divider-gold"></div>
+    <p>Alojate en el corazón original de la estancia. Esta habitación doble conserva el estilo colonial de la construcción de 1952, con muebles de época, jardín privado y la calidez de la historia familiar de La Ernestina.</p>
+    <div class="room-detail-features">
+      <span class="feat-tag">Doble</span>
+      <span class="feat-tag">Estilo colonial</span>
+      <span class="feat-tag">Jardín privado</span>
+      <span class="feat-tag">Muebles de época</span>
+      <span class="feat-tag">Desayuno incluido</span>
+    </div>
+    <a href="index.html#contacto" class="btn-primary">Consultar disponibilidad</a>
+  </div>
+</section>
+-->
+
+<!-- CTA -->
+<section id="contacto" class="cta">
+  <div class="cta-bg"></div>
+  <div class="cta-content reveal">
+    <span class="section-tag">Reservas</span>
+    <h2>Elegí tu<br><em>refugio ideal</em></h2>
+    <p>Contanos qué buscás y te ayudamos a encontrar el alojamiento perfecto para tu estadía en la montaña.</p>
+    <div class="cta-btns">
+      <a href="mailto:reservas@laernestina.com.ar" class="btn-primary">Escribirnos</a>
+      <a href="tel:+5492944000000" class="btn-outline">+54 294 400-0000</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">
+    <span class="logo-text">La Ernestina</span>
+    <p>Estancia de montaña en las sierras Córdobesas. Donde la naturaleza y el confort conviven en perfecta armonía.</p>
+  </div>
+  <div class="footer-col">
+    <h4>Navegación</h4>
+    <ul class="footer-links">
+      <li><a href="index.html#nosotros">Nuestra historia</a></li>
+      <li><a href="index.html#experiencias">Experiencias</a></li>
+      <li><a href="habitaciones.html">Alojamiento</a></li>
+      <li><a href="index.html#gastronomia">Gastronomía</a></li>
+      <li><a href="index.html#contacto">Reservas</a></li>
+    </ul>
+  </div>
+  <div class="footer-col">
+    <h4>Contacto</h4>
+    <address>
+      Ruta Nacional 40, km 2.148<br>
+      San Clemente, Córdoba, Argentina<br><br>
+      reservas@laernestina.com.ar<br>
+      +54 294 400-0000
+    </address>
+  </div>
+</footer>
+<div class="footer-bottom">
+  <p>© 2026 Estancia La Ernestina · Todos los derechos reservados</p>
+</div>
+
+<script>
+  /* Hamburger menu */
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuLinks  = document.querySelectorAll('.menu-link');
+
+  function toggleMenu(open) {
+    hamburger.classList.toggle('open', open);
+    mobileMenu.classList.toggle('open', open);
+    document.body.style.overflow = open ? 'hidden' : '';
+  }
+
+  hamburger.addEventListener('click', () => toggleMenu(!hamburger.classList.contains('open')));
+  menuLinks.forEach(link => link.addEventListener('click', () => toggleMenu(false)));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') toggleMenu(false); });
+
+  /* Scroll reveal */
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 70);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
